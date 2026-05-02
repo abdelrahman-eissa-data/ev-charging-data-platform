@@ -1,0 +1,19 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+.venv/
+venv/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# API output data
+data/raw/*
+data/processed/*
+
+# CSV and JSON data files
+*.csv
+*.json
