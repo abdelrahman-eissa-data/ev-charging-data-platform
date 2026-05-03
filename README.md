@@ -2,9 +2,9 @@
 
 ## 📌 Project Overview
 
-This project demonstrates a **Data Engineering pipeline** that collects, processes, and prepares data from multiple sources in the EV (Electric Vehicle) domain.
+This project demonstrates an end-to-end **Data Engineering pipeline** that collects, processes, and prepares data from multiple sources in the Electric Vehicle (EV) domain.
 
-The goal is to simulate a real-world data workflow, starting from data extraction to transformation and preparing the data for analytics and visualization.
+The goal is to simulate a real-world data workflow, starting from data extraction to transformation, and preparing the data for analytics and visualization.
 
 ---
 
@@ -37,7 +37,7 @@ Processed Data (CSV)
 ## 🛠️ Tech Stack
 
 * Python (requests, pandas)
-* REST APIs (JSON data)
+* REST APIs (JSON)
 * Git & GitHub (Version Control)
 * Data Pipeline Design
 
@@ -80,23 +80,23 @@ ev-charging-data-platform/
 
 * Add simulated vehicle data (streaming-like data)
 * Load data into PostgreSQL or SQLite
-* Build data model (Data Warehouse)
-* Create Power BI dashboard for insights
-* Automate pipeline using workflow tools (Airflow / n8n)
+* Build a data model (Data Warehouse)
+* Create a Power BI dashboard for insights
+* Automate the pipeline using workflow tools (Airflow / n8n)
 
 ---
 
 ## 🎯 Key Learnings
 
 * Understanding API data structures (JSON, nested data)
-* Designing a scalable data pipeline
-* Separating raw and processed data
+* Designing scalable data pipelines
+* Separating raw and processed data layers
 * Using Git professionally in data projects
-* Moving from Data Analysis to Data Engineering mindset
+* Transitioning from Data Analysis to Data Engineering
 
 ---
 
 ## 👤 Author
 
-Abdelrahman Eissa
+**Abdelrahman Eissa**
 Aspiring Data Engineer
