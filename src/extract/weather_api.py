@@ -48,7 +48,7 @@ print(f"Raw JSON saved at: {raw_file}")
 hourly_data = data["hourly"]
 
 df = pd.DataFrame(hourly_data)
-
+print(df.head())
 # ----------- Basic Cleaning -----------
 df["time"] = pd.to_datetime(df["time"])
 
