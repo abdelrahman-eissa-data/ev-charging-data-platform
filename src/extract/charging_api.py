@@ -47,19 +47,23 @@ with open(raw_file, "w", encoding="utf-8") as f:
 print(f"Raw JSON saved at: {raw_file}")
 
 # ----------- Parse Nested JSON -----------
-records = []
+records = []  # leere Liste
 
-for station in data:
+for station in data:  # jede Station
+    
+    # Nested Dict holen
     address = station.get("AddressInfo", {})
     connections = station.get("Connections", [])
 
+    # PowerKW aus erster Connection
     power_kw = None
     connection_type_id = None
 
-    if connections:
+    if connections:  # ← Liste nicht leer?
         power_kw = connections[0].get("PowerKW")
         connection_type_id = connections[0].get("ConnectionTypeID")
 
+    # Record erstellen
     records.append({
         "station_id": station.get("ID"),
         "station_name": address.get("Title"),
