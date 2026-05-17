@@ -25,16 +25,24 @@ df_charging = pd.read_csv(f"{charging_path}/{latest_file}")
 stations = df_charging[["station_id", "city", "power_kw"]].dropna().to_dict("records")
 
 
-# -----------Sessions Loop--------------
+# -----------Sessions Loop und Fahrzeugen Hinzufügen --------------
+vehicles = [
+    {"type": "Tesla Model 3", "battery_capacity": 75},
+    {"type": "VW ID.4",       "battery_capacity": 82},
+    {"type": "BMW iX3",       "battery_capacity": 74},
+    {"type": "Renault Zoe",   "battery_capacity": 52},
+]
+
 sessions = []
 
 for i in range(100):
    
     station = random.choice(stations)
-    
+    vehicle = random.choice(vehicles)
+    battery_capacity = vehicle["battery_capacity"]
     battery_start = random.randint(10, 40)
     battery_end = random.randint(battery_start + 20, 95)
-    energy_kwh = (75 * (battery_end - battery_start)) / 100
+    energy_kwh = (battery_capacity * (battery_end - battery_start)) / 100
     duration_minutes = round((energy_kwh / station["power_kw"]) * 60)
     
     start_time = datetime.now().replace(microsecond=0) - timedelta(
@@ -46,6 +54,8 @@ for i in range(100):
 
     session = {
         "vehicle_id":        f"EV_{i+1:03d}",
+        "vehicle_type":     vehicle["type"],
+        "battery_capacity": battery_capacity,
         "station_id":        station["station_id"],
         "city":              station["city"],
         "power_kw":          station["power_kw"],
