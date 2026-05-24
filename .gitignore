@@ -17,3 +17,6 @@ data/processed/*
 # CSV and JSON data files
 *.csv
 *.json
+
+# PostgreSQL data files
+POSTGRES_PASSWORD=12589
