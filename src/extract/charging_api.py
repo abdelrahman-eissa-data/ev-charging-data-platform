@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import json
 import os
+from dotenv import load_dotenv
 from datetime import datetime
 
 # ----------- Setup Paths -----------
@@ -15,12 +16,19 @@ os.makedirs(PROCESSED_PATH, exist_ok=True)
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
 
 # ----------- API Request -----------
+load_dotenv()
+
+api_key = os.getenv("OPENCHARGEMAP_API_KEY")
+
+if api_key is None:
+    raise ValueError("OPENCHARGEMAP_API_KEY is not set. Please check your .env file.")
+
 url = "https://api.openchargemap.io/v3/poi/"
 
 params = {
     "countrycode": "DE",
     "maxresults": 50,
-    "key": "eb97944a-7353-4416-a680-1b14f2a089f1"
+    "key": api_key
 }
 
 response = requests.get(url, params=params, timeout=30)
