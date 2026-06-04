@@ -24,3 +24,15 @@ WHERE station_id IS NOT NULL
   AND power_kw IS NOT NULL
   AND power_kw > 0;
 
+
+-- =====================================================
+-- Indexes
+-- These indexes support common joins and filters.
+-- =====================================================
+
+CREATE INDEX IF NOT EXISTS idx_clean_charging_stations_station_id
+ON clean_charging_stations(station_id);
+
+CREATE INDEX IF NOT EXISTS idx_clean_charging_stations_city
+ON clean_charging_stations(city);
+
