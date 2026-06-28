@@ -86,8 +86,8 @@ for i in range(25):
 
 # ----------- Generate Vehicle Charging Sessions -----------
 sessions = []
-
-for i in range(100):
+NUMBER_OF_SESSIONS = 10000
+for i in range(NUMBER_OF_SESSIONS):
 
     station = random.choice(stations)
     vehicle = random.choice(fleet)
@@ -106,7 +106,7 @@ for i in range(100):
     duration_minutes = round((energy_kwh / station["power_kw"]) * 60)
 
     start_time = datetime.now().replace(microsecond=0) - timedelta(
-        days=random.randint(0, 30),
+        days=random.randint(0, 365),
         hours=random.randint(0, 23),
         minutes=random.randint(0, 59)
     )

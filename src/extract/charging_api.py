@@ -27,7 +27,7 @@ url = "https://api.openchargemap.io/v3/poi/"
 
 params = {
     "countrycode": "DE",
-    "maxresults": 50,
+    "maxresults": 300,
     "key": api_key
 }
 
