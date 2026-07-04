@@ -190,6 +190,10 @@ EV_data-engineering-project/
 │       ├── vehicle/
 │       └── weather/
 │
+├── docs/
+│   └── images/
+│       └── postgresql_dwh_erd.png
+│
 ├── notebooks/
 │   ├── charging/
 │   ├── vehicle_simulator/
@@ -472,15 +476,40 @@ Expected validation results for relationship and data quality checks are `0`.
 
 ### PostgreSQL Data Warehouse ERD
 
-A PostgreSQL ERD was generated to document the full Data Warehouse structure, including staging tables, clean transformation tables, and the final Star Schema Data Mart.
+The following ERD documents the PostgreSQL Data Warehouse structure of the project.
+
+It shows the complete database model, including:
 
 ```text
-Full DWH ERD:
-staging tables + clean tables + mart tables
+Staging Layer:
+stg_weather
+stg_charging_stations
+stg_vehicle_sessions
 
-Final Power BI model:
-dim_station + dim_vehicle + dim_date + fact_charging_sessions
+Clean / Transformation Layer:
+clean_weather
+clean_charging_stations
+clean_vehicle_sessions
+
+Data Mart / Star Schema Layer:
+dim_station
+dim_vehicle
+dim_date
+fact_charging_sessions
 ```
+
+The final reporting model for Power BI is based only on the Star Schema tables:
+
+```text
+dim_station
+dim_vehicle
+dim_date
+fact_charging_sessions
+```
+
+![PostgreSQL Data Warehouse ERD](docs/images/postgresql_dwh_erd.png)
+
+This ERD shows the full PostgreSQL Data Warehouse structure, while Power BI will only use the final Data Mart tables for reporting.
 
 ---
 
