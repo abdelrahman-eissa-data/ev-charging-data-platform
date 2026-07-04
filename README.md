@@ -11,9 +11,9 @@ Extract → Load → Transform
 ```
 
 Python is used for data extraction, API integration, data simulation, and loading data into PostgreSQL.
-SQL is used for data validation, cleaning, and transformation inside PostgreSQL.
+SQL is used for data validation, cleaning, transformation, and Data Warehouse modeling inside PostgreSQL.
 
-The goal of this project is to demonstrate practical Data Engineering skills, including API extraction, raw and processed data layers, PostgreSQL staging tables, SQL transformations, data quality checks, Git/GitHub workflow, and later Data Warehouse modeling, dbt, Power BI, automation, Docker/Linux, and AWS.
+The goal of this project is to demonstrate practical Data Engineering skills, including API extraction, raw and processed data layers, PostgreSQL staging tables, SQL transformations, data quality checks, PostgreSQL Data Warehouse modeling, Star Schema design, Git/GitHub workflow, and later dbt, Power BI, automation, Docker/Linux, and AWS.
 
 ---
 
@@ -29,6 +29,7 @@ Completed so far:
 ✅ Weather API extraction
 ✅ EV Charging Stations API extraction
 ✅ Simulated vehicle charging sessions
+✅ Scaled vehicle charging simulation for analytics reporting
 ✅ Raw JSON storage
 ✅ Processed CSV storage
 ✅ PostgreSQL database setup
@@ -40,16 +41,20 @@ Completed so far:
 ✅ Clean charging stations table
 ✅ Clean vehicle sessions table
 ✅ Clean weather table
+✅ PostgreSQL Data Warehouse modeling
+✅ Data Mart / Star Schema modeling
+✅ Dimension tables
+✅ Fact table
+✅ Primary key and foreign key relationships
+✅ Data Mart validation queries
+✅ PostgreSQL ERD generated
 ```
 
 Next steps:
 
 ```text
-⬜ Data Mart / Star Schema modeling
-⬜ Dimension tables
-⬜ Fact table
-⬜ dbt implementation
 ⬜ Power BI dashboard
+⬜ dbt implementation
 ⬜ Pipeline automation
 ⬜ Docker / Linux workflow
 ⬜ AWS version with S3 and RDS
@@ -96,9 +101,20 @@ data/raw/weather/        → JSON
 data/processed/weather/  → CSV
 ```
 
+The weather dataset includes:
+
+```text
+time
+temperature_2m
+precipitation
+wind_speed_10m
+```
+
+---
+
 ### EV Charging Stations API
 
-Charging station data is extracted from OpenChargeMap API and stored as:
+Charging station data is extracted from the OpenChargeMap API and stored as:
 
 ```text
 data/raw/charging/        → JSON
@@ -107,10 +123,29 @@ data/processed/charging/  → CSV
 
 Sensitive API keys are stored in `.env` and are not committed to GitHub.
 
+The charging station dataset includes:
+
+```text
+station_id
+station_name
+city
+postcode
+latitude
+longitude
+number_of_points
+power_kw
+connection_type_id
+```
+
+---
+
 ### Simulated Vehicle Charging Sessions
 
 Vehicle charging session data is generated using Python.
-The simulation is based on real charging station data and includes:
+
+The simulation is based on real charging station data and includes a scalable number of charging sessions for analytics reporting.
+
+The simulated vehicle charging sessions include:
 
 ```text
 session_id
@@ -162,11 +197,29 @@ EV_data-engineering-project/
 │
 ├── src/
 │   ├── extract/
+│   │   ├── charging_api.py
+│   │   ├── vehicle_simulator.py
+│   │   └── weather_api.py
+│   │
 │   └── load/
+│       └── load_to_postgres.py
 │
 ├── sql/
 │   ├── staging/
-│   └── transform/
+│   │   ├── 01_create_staging_tables.sql
+│   │   └── 02_data_quality_checks.sql
+│   │
+│   ├── transform/
+│   │   ├── 01_clean_charging_stations.sql
+│   │   ├── 02_clean_vehicle_sessions.sql
+│   │   └── 03_clean_weather.sql
+│   │
+│   └── marts/
+│       ├── 01_dim_station.sql
+│       ├── 02_dim_vehicle.sql
+│       ├── 03_dim_date.sql
+│       ├── 04_fact_charging_sessions.sql
+│       └── 05_validate_data_mart.sql
 │
 ├── README.md
 ├── requirements.txt
@@ -194,6 +247,7 @@ DataFrame creation
 Raw JSON export
 Processed CSV export
 Timestamped file creation
+Vehicle charging session simulation
 ```
 
 ---
@@ -235,6 +289,8 @@ stg_weather
 stg_charging_stations
 stg_vehicle_sessions
 ```
+
+The staging layer keeps the data close to the source structure and is used for initial validation and quality checks.
 
 ---
 
@@ -310,6 +366,124 @@ ON clean_charging_stations(station_id);
 
 ---
 
+## PostgreSQL Data Warehouse Modeling
+
+The project includes a PostgreSQL-based Data Warehouse structure with multiple layers designed for a production-oriented analytics workflow.
+
+The Data Warehouse is organized into three main layers:
+
+```text
+Staging Layer
+      ↓
+Clean / Transformation Layer
+      ↓
+Data Mart / Star Schema Layer
+```
+
+---
+
+### 1. Staging Layer
+
+The staging layer stores loaded data from APIs and simulated charging sessions with a structure close to the original source data.
+
+Current staging tables:
+
+```text
+stg_weather
+stg_charging_stations
+stg_vehicle_sessions
+```
+
+This layer is used for initial data quality checks and validation before applying transformations.
+
+---
+
+### 2. Clean / Transformation Layer
+
+The clean layer applies SQL-based cleaning rules and validation logic.
+
+Current clean tables:
+
+```text
+clean_weather
+clean_charging_stations
+clean_vehicle_sessions
+```
+
+This layer removes invalid records, standardizes the data, and prepares reliable datasets for analytical modeling.
+
+---
+
+### 3. Data Mart / Star Schema Layer
+
+The final Data Mart is designed as a Star Schema for Power BI reporting.
+
+Final Data Mart tables:
+
+| Table                    | Type            | Description                                                                                                                    |
+| ------------------------ | --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `fact_charging_sessions` | Fact Table      | Contains charging session events and measurable metrics such as energy, cost, duration, battery percentage, and charging power |
+| `dim_station`            | Dimension Table | Contains charging station attributes such as station name, city, location, number of charging points, and power                |
+| `dim_vehicle`            | Dimension Table | Contains vehicle master data such as vehicle ID, vehicle type, and battery capacity                                            |
+| `dim_date`               | Dimension Table | Contains a complete calendar table for time-based analysis and Power BI time intelligence                                      |
+
+---
+
+### Star Schema Relationships
+
+The fact table is connected to the dimension tables through primary key and foreign key relationships:
+
+```text
+fact_charging_sessions.vehicle_id     → dim_vehicle.vehicle_id
+fact_charging_sessions.station_id     → dim_station.station_id
+fact_charging_sessions.start_date_id  → dim_date.date_id
+fact_charging_sessions.end_date_id    → dim_date.date_id
+```
+
+This structure supports efficient analytical queries and enables interactive reporting in Power BI.
+
+---
+
+### Data Mart Validation
+
+A dedicated validation script is included:
+
+```text
+sql/marts/05_validate_data_mart.sql
+```
+
+The validation checks include:
+
+```text
+row counts for fact and dimension tables
+referential integrity between fact and dimensions
+missing vehicle relationships
+missing station relationships
+missing start date relationships
+missing end date relationships
+invalid measure values
+calendar continuity checks
+business summary metrics
+```
+
+Expected validation results for relationship and data quality checks are `0`.
+
+---
+
+### PostgreSQL Data Warehouse ERD
+
+A PostgreSQL ERD was generated to document the full Data Warehouse structure, including staging tables, clean transformation tables, and the final Star Schema Data Mart.
+
+```text
+Full DWH ERD:
+staging tables + clean tables + mart tables
+
+Final Power BI model:
+dim_station + dim_vehicle + dim_date + fact_charging_sessions
+```
+
+---
+
 ## Technologies Used
 
 ```text
@@ -329,8 +503,8 @@ Jupyter Notebook
 Planned technologies:
 
 ```text
-dbt
 Power BI
+dbt
 Docker
 Linux
 AWS S3
@@ -349,6 +523,7 @@ API data extraction
 Raw and processed data layers
 JSON and CSV handling
 Vehicle charging simulation
+Scaled simulation dataset for analytics reporting
 ELT pipeline design
 PostgreSQL staging tables
 Automated loading with Python
@@ -356,6 +531,14 @@ Environment variable management
 Data quality checks
 SQL transformations
 Indexing for joins and filters
+PostgreSQL Data Warehouse modeling
+Staging, clean, and mart layers
+Star Schema modeling
+Fact and dimension tables
+Primary key and foreign key relationships
+Referential integrity validation
+Data Mart validation queries
+Power BI-ready semantic model preparation
 Git/GitHub workflow
 Reproducible project structure
 ```
@@ -364,9 +547,9 @@ Reproducible project structure
 
 ## Next Development Steps
 
-### 1. Data Mart / Star Schema
+### 1. Power BI Dashboard
 
-Create analytical tables for reporting:
+Build a Power BI dashboard using the final Data Mart tables:
 
 ```text
 dim_station
@@ -374,6 +557,23 @@ dim_vehicle
 dim_date
 fact_charging_sessions
 ```
+
+Possible KPIs:
+
+```text
+total charging sessions
+total energy charged
+total charging cost
+average charging duration
+average charging power
+sessions by city
+energy by vehicle type
+charging duration by station power
+weekend vs weekday charging behavior
+monthly charging trend
+```
+
+---
 
 ### 2. dbt
 
@@ -389,29 +589,14 @@ dbt will be used for:
 
 ```text
 modular SQL transformations
-testing
+automated testing
 documentation
 lineage
 ```
 
-### 3. Power BI
+---
 
-Build a Power BI dashboard using the final Data Mart tables.
-
-Possible KPIs:
-
-```text
-total charging sessions
-total energy charged
-total charging cost
-average charging duration
-sessions by city
-energy by vehicle type
-charging duration by station power
-weather impact on charging behavior
-```
-
-### 4. Automation
+### 3. Automation
 
 Automate the full pipeline:
 
@@ -420,10 +605,13 @@ extract data
 generate vehicle sessions
 load to PostgreSQL
 run transformations
+run data mart validation
 refresh reporting layer
 ```
 
-### 5. Docker / Linux / AWS
+---
+
+### 4. Docker / Linux / AWS
 
 Later improvements:
 
