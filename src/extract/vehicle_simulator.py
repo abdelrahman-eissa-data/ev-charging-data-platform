@@ -86,7 +86,16 @@ for i in range(25):
 
 # ----------- Generate Vehicle Charging Sessions -----------
 sessions = []
-NUMBER_OF_SESSIONS = 10000
+
+# Fixed analysis period for stable Power BI reporting
+NUMBER_OF_SESSIONS = 20000
+START_DATE = datetime(2025, 1, 1)
+END_DATE = datetime(2026, 6, 30, 23, 59, 59)
+
+total_seconds = int((END_DATE - START_DATE).total_seconds())
+
+PRICE_PER_KWH = 0.45
+
 for i in range(NUMBER_OF_SESSIONS):
 
     station = random.choice(stations)
@@ -94,27 +103,57 @@ for i in range(NUMBER_OF_SESSIONS):
 
     battery_capacity = vehicle["battery_capacity"]
 
+    # Generate random start time within fixed analysis period
+    random_seconds = random.randint(0, total_seconds)
+    start_time = START_DATE + timedelta(seconds=random_seconds)
+    start_time = start_time.replace(microsecond=0)
+
+    # Date-based simulation logic
+    month = start_time.month
+    is_weekend = start_time.weekday() >= 5
+
+    # Seasonal behavior:
+    # Winter months have slightly higher energy demand
+    if month in [11, 12, 1, 2]:
+        season_multiplier = random.uniform(1.10, 1.25)
+
+    # Summer months are more stable / slightly lower
+    elif month in [6, 7, 8]:
+        season_multiplier = random.uniform(0.95, 1.05)
+
+    # Spring and autumn
+    else:
+        season_multiplier = random.uniform(1.00, 1.10)
+
+    # Weekend charging behavior
+    if is_weekend:
+        weekday_multiplier = random.uniform(1.05, 1.20)
+    else:
+        weekday_multiplier = random.uniform(0.90, 1.05)
+
     battery_start = random.randint(10, 40)
     battery_end = random.randint(battery_start + 20, 95)
 
     battery_delta_pct = battery_end - battery_start
-    energy_kwh = round((battery_capacity * battery_delta_pct) / 100, 2)
 
-    PRICE_PER_KWH = 0.45
+    # Base energy calculation
+    energy_kwh = (battery_capacity * battery_delta_pct) / 100
+
+    # Apply realistic behavioral multipliers
+    energy_kwh = energy_kwh * season_multiplier * weekday_multiplier
+    energy_kwh = round(energy_kwh, 2)
+
     cost_eur = round(energy_kwh * PRICE_PER_KWH, 2)
 
     duration_minutes = round((energy_kwh / station["power_kw"]) * 60)
 
-    start_time = datetime.now().replace(microsecond=0) - timedelta(
-        days=random.randint(0, 365),
-        hours=random.randint(0, 23),
-        minutes=random.randint(0, 59)
-    )
+    # Avoid zero-minute sessions if power_kw is very high
+    duration_minutes = max(duration_minutes, 1)
 
     end_time = start_time + timedelta(minutes=duration_minutes)
 
     session = {
-        "session_id": f"S_{i+1:04d}",
+        "session_id": f"S_{i+1:05d}",
         "vehicle_id": vehicle["vehicle_id"],
         "vehicle_type": vehicle["vehicle_type"],
         "battery_capacity_kwh": vehicle["battery_capacity"],
@@ -140,6 +179,13 @@ df = pd.DataFrame(sessions)
 print(df.head())
 print(df.columns)
 print(df.shape)
+
+print("Vehicle session simulation completed successfully.")
+print(f"Rows generated: {len(df)}")
+print(f"Date range: {df['start_time'].min()} to {df['start_time'].max()}")
+print(f"Number of vehicles: {df['vehicle_id'].nunique()}")
+print(f"Number of stations used: {df['station_id'].nunique()}")
+print(f"Number of cities: {df['city'].nunique()}")
 
 # ----------- Save RAW JSON -----------
 raw_file = os.path.join(RAW_PATH, f"vehicle_sessions_{timestamp}.json")
