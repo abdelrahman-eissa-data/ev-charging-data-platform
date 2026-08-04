@@ -48,12 +48,13 @@ Completed so far:
 ✅ Primary key and foreign key relationships
 ✅ Data Mart validation queries
 ✅ PostgreSQL ERD generated
+✅ Power BI Semantic Model
+✅ Power BI Executive Dashboard
 ```
 
 Next steps:
 
 ```text
-⬜ Power BI dashboard
 ⬜ dbt implementation
 ⬜ Pipeline automation
 ⬜ Docker / Linux workflow
@@ -85,7 +86,9 @@ Clean Tables
         ↓
 Data Mart / Star Schema
         ↓
-Power BI Dashboard
+Power BI Semantic Model
+        ↓
+Executive Dashboard
 ```
 
 ---
@@ -511,6 +514,89 @@ fact_charging_sessions
 
 This ERD shows the full PostgreSQL Data Warehouse structure, while Power BI will only use the final Data Mart tables for reporting.
 
+
+---
+
+# Power BI Semantic Model
+
+The final PostgreSQL Data Mart was connected to Power BI using Import Mode.
+
+The semantic model is based on a Star Schema and includes:
+
+## Fact Table
+
+```text
+fact_charging_sessions
+```
+
+## Dimension Tables
+
+```text
+dim_date
+dim_station
+dim_vehicle
+```
+
+The semantic model enables:
+
+```text
+Interactive filtering
+Cross-filtering
+Time Intelligence
+DAX calculations
+Business KPI reporting
+```
+
+---
+
+# Power BI Executive Dashboard
+
+An interactive Executive Dashboard was developed to analyze EV charging network performance and support business decision-making.
+
+Business questions answered:
+
+- How does charging demand change over time?
+- Which cities have the highest charging demand?
+- Which vehicle types consume the most energy?
+- How does charging behavior differ between weekdays and weekends?
+
+## KPIs
+
+```text
+Total Charging Sessions
+Total Energy (kWh)
+Total Charging Cost (EUR)
+Average Charging Duration
+Cost per kWh
+```
+
+## Dashboard Visualizations
+
+```text
+Monthly Energy Trend
+Top 10 Cities by Charging Sessions
+Energy Consumption by Vehicle Type
+Charging Sessions: Weekday vs Weekend
+```
+
+## Interactive Filters
+
+```text
+Year
+City
+Vehicle Type
+```
+
+## Dashboard Preview
+
+![Power BI Executive Dashboard](docs/images/PowerBI_Dashboard.png)
+
+The complete Power BI report is available in:
+
+```text
+powerbi/EV_Charging_Dashboard.pbix
+```
+
 ---
 
 ## Technologies Used
@@ -524,6 +610,10 @@ python-dotenv
 PostgreSQL
 pgAdmin
 SQL
+Power BI
+DAX
+Semantic Modeling
+Star Schema
 Git
 GitHub
 Jupyter Notebook
@@ -570,41 +660,21 @@ Data Mart validation queries
 Power BI-ready semantic model preparation
 Git/GitHub workflow
 Reproducible project structure
+Power BI Semantic Model
+Interactive Dashboard Development
+Business KPI Design
+DAX Measures
+Business-oriented Reporting
 ```
 
 ---
 
 ## Next Development Steps
 
-### 1. Power BI Dashboard
-
-Build a Power BI dashboard using the final Data Mart tables:
-
-```text
-dim_station
-dim_vehicle
-dim_date
-fact_charging_sessions
-```
-
-Possible KPIs:
-
-```text
-total charging sessions
-total energy charged
-total charging cost
-average charging duration
-average charging power
-sessions by city
-energy by vehicle type
-charging duration by station power
-weekend vs weekday charging behavior
-monthly charging trend
-```
 
 ---
 
-### 2. dbt
+### 1. dbt
 
 Migrate SQL transformation logic into dbt models:
 
@@ -625,7 +695,7 @@ lineage
 
 ---
 
-### 3. Automation
+### 2. Automation
 
 Automate the full pipeline:
 
@@ -640,7 +710,7 @@ refresh reporting layer
 
 ---
 
-### 4. Docker / Linux / AWS
+### 3. Docker / Linux / AWS
 
 Later improvements:
 
